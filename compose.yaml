@@ -1,0 +1,39 @@
+services:
+  postgres:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-shelterconnect}
+      POSTGRES_USER: ${DB_USERNAME:-shelterconnect}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-local-development-only}
+    ports:
+      - "127.0.0.1:${DB_PORT:-5432}:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", 'pg_isready -U "$$POSTGRES_USER" -d "$$POSTGRES_DB"']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    profiles: [app]
+    build: .
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      DB_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-shelterconnect}
+      DB_USERNAME: ${DB_USERNAME:-shelterconnect}
+      DB_PASSWORD: ${DB_PASSWORD:-local-development-only}
+      APP_SECURITY_USERNAME: ${APP_SECURITY_USERNAME:-local}
+      APP_SECURITY_PASSWORD: ${APP_SECURITY_PASSWORD:-local-development-only}
+      STORAGE_LOCAL_ROOT: /app/storage/images
+    ports:
+      - "127.0.0.1:${SERVER_PORT:-8080}:8080"
+    volumes:
+      - image-data:/app/storage/images
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  postgres-data:
+  image-data:

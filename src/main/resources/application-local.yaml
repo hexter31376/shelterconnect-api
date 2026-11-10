@@ -1,0 +1,17 @@
+spring:
+  datasource:
+    password: ${DB_PASSWORD:local-development-only}
+  docker:
+    compose:
+      enabled: true
+      lifecycle-management: start-only
+  security:
+    user:
+      name: ${APP_SECURITY_USERNAME:local}
+      password: ${APP_SECURITY_PASSWORD:local-development-only}
+
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
