@@ -14,7 +14,7 @@ class PaginationResponseTests {
     @Test
     void wrapsPageMetadataAndMappedContent() {
         var page = new PageImpl<>(List.of(1, 2), PageRequest.of(0, 2), 5)
-                .map(value -> "item-" + value);성
+                .map(value -> "item-" + value);
         var response = CommonResponse.page(page);
 
         assertNull(response.error());
