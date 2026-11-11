@@ -1,4 +1,4 @@
-package org.shelterconnect.api.config;
+package org.shelterconnect.api.platform.storage;
 
 import java.nio.file.Path;
 

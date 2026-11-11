@@ -1,4 +1,4 @@
-package org.shelterconnect.api.config;
+package org.shelterconnect.api.platform.security;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -21,7 +21,7 @@ public class SecurityConfig {
             }
             authorize.anyRequest().authenticated();
         });
-        // Retain CSRF protection while browser-capable HTTP Basic authentication is used.
+        // 브라우저에서도 사용할 수 있는 HTTP Basic 인증을 사용하므로 CSRF 보호를 유지합니다.
         http.httpBasic(Customizer.withDefaults());
         return http.build();
     }

@@ -1,5 +1,5 @@
 FROM amazoncorretto:25-al2023 AS build
-# Gradle Wrapper requires xargs, provided by findutils on Amazon Linux.
+# Gradle Wrapper에 필요한 xargs는 Amazon Linux의 findutils 패키지가 제공합니다.
 RUN dnf install -y findutils && dnf clean all
 WORKDIR /workspace
 COPY gradlew settings.gradle build.gradle ./

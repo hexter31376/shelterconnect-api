@@ -4,7 +4,7 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 
-### STS ###
+### STS 개발 환경 ###
 .apt_generated
 .classpath
 .factorypath
@@ -16,7 +16,7 @@ bin/
 !**/src/main/**/bin/
 !**/src/test/**/bin/
 
-### IntelliJ IDEA ###
+### IntelliJ IDEA 개발 환경 ###
 .idea
 *.iws
 *.iml
@@ -25,18 +25,18 @@ out/
 !**/src/main/**/out/
 !**/src/test/**/out/
 
-### NetBeans ###
+### NetBeans 개발 환경 ###
 /nbproject/private/
 /nbbuild/
 /dist/
 /nbdist/
 /.nb-gradle/
 
-### VS Code ###
+### VS Code 개발 환경 ###
 .vscode/
 
-# Local configuration and uploaded images
+# 로컬 설정 및 업로드 이미지
 .env
 .env.*
 !.env.example
-storage/
+/storage/
