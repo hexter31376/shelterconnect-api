@@ -72,11 +72,11 @@ class PaginationResponseTests {
     }
 
     @Test
-    void serializesPaginationInsideCommonResponseData() throws Exception {
+    void serializesPaginationInsideCommonResponseData() {
         var mapper = JsonMapper.builder().build();
         var page = mapper.readTree(mapper.writeValueAsString(CommonResponse.page(
                 new PageImpl<>(List.of("item"), PageRequest.of(0, 10), 1))));
-        assertEquals("item", page.path("data").path("content").get(0).asText());
+        assertEquals("item", page.path("data").path("content").get(0).stringValue());
         assertEquals(1, page.path("data").path("totalElements").asInt());
         assertFalse(page.path("data").has("pageable"));
         assertTrue(page.path("error").isNull());
