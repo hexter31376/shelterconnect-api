@@ -10,7 +10,8 @@ public record CursorResponse<T>(List<T> content, String nextCursor, boolean hasN
         if (nextCursor != null && nextCursor.isBlank()) {
             throw new IllegalArgumentException("nextCursor cannot be blank");
         }
-        if (hasNext != (nextCursor != null)) {
+        boolean hasNextCursor = nextCursor != null;
+        if (hasNext != hasNextCursor) {
             throw new IllegalArgumentException("nextCursor must be present exactly when hasNext is true");
         }
         if (hasNext && content.isEmpty()) {
