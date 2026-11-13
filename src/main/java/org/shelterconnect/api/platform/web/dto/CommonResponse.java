@@ -19,14 +19,6 @@ public record CommonResponse<T>(T data, ErrorDetail error) {
         return new CommonResponse<>(null, null);
     }
 
-    public static <T> CommonResponse<PageResponse<T>> page(Page<T> page) {
-        return success(PageResponse.from(page));
-    }
-
-    public static <T> CommonResponse<CursorResponse<T>> cursor(List<T> content, String nextCursor) {
-        return success(CursorResponse.of(content, nextCursor));
-    }
-
     public static CommonResponse<Void> failure(String code, String message) {
         return new CommonResponse<>(null, new ErrorDetail(code, message));
     }
