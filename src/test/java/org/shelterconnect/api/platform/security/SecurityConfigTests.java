@@ -1,4 +1,4 @@
-package org.shelterconnect.api.config;
+package org.shelterconnect.api.platform.security;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

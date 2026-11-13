@@ -8,8 +8,8 @@ group = 'org.shelterconnect'
 version = '0.0.1-SNAPSHOT'
 description = 'shellterconnect-api'
 
-// CVE-2026-110879: align each Jackson family on its patched release.
-// Remove these overrides when Spring Boot manages these or newer fixed versions.
+// CVE-2026-110879: 각 Jackson 계열의 버전을 보안 패치가 적용된 버전으로 맞춥니다.
+// Spring Boot가 이 버전 이상의 수정 버전을 관리하면 버전 재정의를 제거합니다.
 ext['jackson-2-bom.version'] = '2.21.8'
 ext['jackson-bom.version'] = '3.1.8'
 
