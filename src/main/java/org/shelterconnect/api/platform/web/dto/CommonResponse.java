@@ -1,9 +1,9 @@
 package org.shelterconnect.api.platform.web.dto;
 
-import java.util.List;
-import org.springframework.data.domain.Page;
+import java.util.Objects;
+import org.jspecify.annotations.Nullable;
 
-public record CommonResponse<T>(T data, ErrorDetail error) {
+public record CommonResponse<T>(@Nullable T data, @Nullable ErrorDetail error) {
 
     public CommonResponse {
         if (data != null && error != null) {
@@ -12,7 +12,7 @@ public record CommonResponse<T>(T data, ErrorDetail error) {
     }
 
     public static <T> CommonResponse<T> success(T data) {
-        return new CommonResponse<>(data, null);
+        return new CommonResponse<>(Objects.requireNonNull(data, "data; use success() for an empty response"), null);
     }
 
     public static CommonResponse<Void> success() {
@@ -24,5 +24,12 @@ public record CommonResponse<T>(T data, ErrorDetail error) {
     }
 
     public record ErrorDetail(String code, String message) {
+        public ErrorDetail {
+            Objects.requireNonNull(code, "code");
+            Objects.requireNonNull(message, "message");
+            if (code.isBlank() || message.isBlank()) {
+                throw new IllegalArgumentException("error code and message must not be blank");
+            }
+        }
     }
-}
+}에

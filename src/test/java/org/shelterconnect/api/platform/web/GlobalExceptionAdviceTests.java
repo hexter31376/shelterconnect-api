@@ -1,6 +1,17 @@
 package org.shelterconnect.api.platform.web;
 
 import jakarta.validation.Valid;
+import org.shelterconnect.api.platform.web.dto.ErrorResponses;
+import org.shelterconnect.api.platform.web.exceptions.ExternalServiceException;
+import org.shelterconnect.api.platform.web.exceptions.ResourceNotFoundException;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+
 import jakarta.validation.constraints.NotBlank;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,18 +24,20 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-class GlobalExceptionHandlerTests {
+class GlobalExceptionAdviceTests {
 
     private MockMvc mvc;
 
     @BeforeEach
     void setUp() {
-        mvc = MockMvcBuilders.standaloneSetup(new ProbeController())
-                .setControllerAdvice(new GlobalExceptionHandler()).build();
+        mvc = MockMvcBuilders.standaloneSetup(new ProbeController(), new DomainController())
+                .setControllerAdvice(new GlobalExceptionAdvice(), new ApplicationExceptionAdvice(), new DomainAdvice()).build();
     }
 
     @Test
@@ -36,7 +49,7 @@ class GlobalExceptionHandlerTests {
     }
 
     @Test
-    void mapsBusinessCodeToHttpStatus() throws Exception {
+    void mapsResourceNotFoundToHttpStatus() throws Exception {
         mvc.perform(get("/business"))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.error.code").value("G006"))
@@ -80,6 +93,51 @@ class GlobalExceptionHandlerTests {
                 .andExpect(jsonPath("$.error.code").value("HTTP_415"));
     }
 
+    @Test
+    void hidesExternalServiceCause() throws Exception {
+        mvc.perform(get("/external"))
+                .andExpect(status().isBadGateway())
+                .andExpect(jsonPath("$.error.code").value("G002"))
+                .andExpect(jsonPath("$.error.message").value(ErrorCode.EXTERNAL_SERVER_ERROR.getMessage()));
+    }
+
+    @Test
+    void domainAdviceTakesPrecedenceOverCommonAdvice() throws Exception {
+        mvc.perform(get("/domain/missing"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error.code").value("G003"));
+    }
+
+    @Test
+    void securityExceptionsAreRethrown() {
+        GlobalExceptionAdvice advice = new GlobalExceptionAdvice();
+        var denied = new AccessDeniedException("denied");
+        var unauthenticated = new BadCredentialsException("invalid");
+        assertSame(denied,
+                assertThrows(Exception.class,
+                        () -> advice.handleUnexpectedException(denied)));
+        assertSame(unauthenticated,
+                assertThrows(Exception.class,
+                        () -> advice.handleUnexpectedException(unauthenticated)));
+    }
+
+    @Order(Ordered.HIGHEST_PRECEDENCE)
+    @RestControllerAdvice(assignableTypes = DomainController.class)
+    static class DomainAdvice {
+        @ExceptionHandler(ResourceNotFoundException.class)
+        ResponseEntity<Object> missing() {
+            return ErrorResponses.from(ErrorCode.BAD_REQUEST);
+        }
+    }
+
+    @RestController
+    static class DomainController {
+        @GetMapping("/domain/missing")
+        void missing() {
+            throw new ResourceNotFoundException();
+        }
+    }
+
     @RestController
     static class ProbeController {
         @GetMapping("/success")
@@ -89,7 +147,12 @@ class GlobalExceptionHandlerTests {
 
         @GetMapping("/business")
         void business() {
-            throw new BusinessException(ErrorCode.NOT_FOUND);
+            throw new ResourceNotFoundException();
+        }
+
+        @GetMapping("/external")
+        void external() {
+            throw new ExternalServiceException(new IllegalStateException("private upstream details"));
         }
 
         @GetMapping("/unexpected")
