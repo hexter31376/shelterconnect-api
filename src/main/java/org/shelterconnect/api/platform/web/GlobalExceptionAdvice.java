@@ -1,9 +1,8 @@
 package org.shelterconnect.api.platform.web;
 
+import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 import org.shelterconnect.api.platform.web.dto.ErrorResponses;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.shelterconnect.api.platform.web.dto.CommonResponse;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -19,11 +18,10 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+@Slf4j
 @Order(Ordered.LOWEST_PRECEDENCE)
 @RestControllerAdvice
 public class GlobalExceptionAdvice extends ResponseEntityExceptionHandler {
-
-    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionAdvice.class);
 
     @Override
     protected @Nullable ResponseEntity<Object> handleExceptionInternal(
