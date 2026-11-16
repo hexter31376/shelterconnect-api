@@ -7,6 +7,7 @@ import org.shelterconnect.api.platform.web.dto.CommonResponse;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -36,14 +37,14 @@ public class GlobalExceptionAdvice extends ResponseEntityExceptionHandler {
             log.error("Request processing failed", exception);
             response = ErrorResponses.body(ErrorCode.INTERNAL_SERVER_ERROR);
         } else {
-            response = switch (status.value()) {
-                case 400 -> ErrorResponses.body(
+            response = switch (HttpStatus.resolve(status.value())) {
+                case BAD_REQUEST -> ErrorResponses.body(
                         exception instanceof MethodArgumentNotValidException
                                 || exception instanceof HandlerMethodValidationException
                                 ? ErrorCode.INVALID_INPUT_VALUE : ErrorCode.BAD_REQUEST);
-                case 404 -> ErrorResponses.body(ErrorCode.NOT_FOUND);
-                case 405 -> ErrorResponses.body(ErrorCode.METHOD_NOT_ALLOWED);
-                default -> CommonResponse.failure("HTTP_" + status.value(), "요청을 처리할 수 없습니다.");
+                case NOT_FOUND -> ErrorResponses.body(ErrorCode.NOT_FOUND);
+                case METHOD_NOT_ALLOWED -> ErrorResponses.body(ErrorCode.METHOD_NOT_ALLOWED);
+                case null, default -> CommonResponse.failure("HTTP_" + status.value(), "요청을 처리할 수 없습니다.");
             };
         }
         return super.handleExceptionInternal(exception, response, headers, status, request);
