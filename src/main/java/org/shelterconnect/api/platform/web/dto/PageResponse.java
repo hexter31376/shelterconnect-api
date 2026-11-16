@@ -16,9 +16,6 @@ public record PageResponse<T>(
 
     public PageResponse {
         content = List.copyOf(Objects.requireNonNull(content, "content"));
-        if (page < 0 || size < 0 || totalElements < 0 || totalPages < 0) {
-            throw new IllegalArgumentException("Page metadata cannot be negative");
-        }
     }
 
     public static <T> PageResponse<T> from(Page<T> page) {
