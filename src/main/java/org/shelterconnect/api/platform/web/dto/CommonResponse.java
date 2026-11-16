@@ -32,4 +32,4 @@ public record CommonResponse<T>(@Nullable T data, @Nullable ErrorDetail error) {
             }
         }
     }
-거}
+}
