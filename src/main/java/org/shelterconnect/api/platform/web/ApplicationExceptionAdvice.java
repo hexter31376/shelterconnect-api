@@ -23,7 +23,7 @@ public class ApplicationExceptionAdvice {
 
     @ExceptionHandler(ExternalServiceException.class)
     public ResponseEntity<Object> externalServiceFailed(ExternalServiceException exception) {
-        log.error("External service request failed", exception);
+        log.error("외부 서비스 요청에 실패했습니다.", exception);
         return ErrorResponses.from(ErrorCode.EXTERNAL_SERVER_ERROR);
     }
 }

@@ -11,7 +11,7 @@ class NullContractTests {
     @Test
     void externalServiceFailureRequiresAndPreservesCause() {
         assertThrows(NullPointerException.class, () -> new ExternalServiceException(null));
-        var cause = new IllegalStateException("upstream failure");
+        var cause = new IllegalStateException("외부 서비스 호출 실패");
         assertSame(cause, new ExternalServiceException(cause).getCause());
     }
 

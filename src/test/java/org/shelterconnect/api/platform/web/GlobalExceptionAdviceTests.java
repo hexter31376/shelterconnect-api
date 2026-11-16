@@ -111,8 +111,8 @@ class GlobalExceptionAdviceTests {
     @Test
     void securityExceptionsAreRethrown() {
         GlobalExceptionAdvice advice = new GlobalExceptionAdvice();
-        var denied = new AccessDeniedException("denied");
-        var unauthenticated = new BadCredentialsException("invalid");
+        var denied = new AccessDeniedException("접근이 거부되었습니다.");
+        var unauthenticated = new BadCredentialsException("인증 정보가 올바르지 않습니다.");
         assertSame(denied,
                 assertThrows(Exception.class,
                         () -> advice.handleUnexpectedException(denied)));
@@ -152,12 +152,12 @@ class GlobalExceptionAdviceTests {
 
         @GetMapping("/external")
         void external() {
-            throw new ExternalServiceException(new IllegalStateException("private upstream details"));
+            throw new ExternalServiceException(new IllegalStateException("외부 서비스의 비공개 오류 정보"));
         }
 
         @GetMapping("/unexpected")
         void unexpected() {
-            throw new IllegalStateException("private database details");
+            throw new IllegalStateException("데이터베이스의 비공개 오류 정보");
         }
 
         @PostMapping("/input")

@@ -15,11 +15,11 @@ public record PageResponse<T>(
 ) {
 
     public PageResponse {
-        content = List.copyOf(Objects.requireNonNull(content, "content"));
+        content = List.copyOf(Objects.requireNonNull(content, "페이지의 데이터 목록은 null일 수 없습니다."));
     }
 
     public static <T> PageResponse<T> from(Page<T> page) {
-        Objects.requireNonNull(page, "page");
+        Objects.requireNonNull(page, "페이지 객체는 null일 수 없습니다.");
         return new PageResponse<>(page.getContent(), page.getNumber(), page.getSize(),
                 page.getTotalElements(), page.getTotalPages(), page.hasNext());
     }
