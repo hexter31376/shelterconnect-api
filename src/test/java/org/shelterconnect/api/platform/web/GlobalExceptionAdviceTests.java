@@ -2,8 +2,6 @@ package org.shelterconnect.api.platform.web;
 
 import jakarta.validation.Valid;
 import org.shelterconnect.api.platform.web.dto.ErrorResponses;
-import org.shelterconnect.api.platform.web.exceptions.ExternalServiceException;
-import org.shelterconnect.api.platform.web.exceptions.ResourceNotFoundException;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.ResponseEntity;
@@ -37,7 +35,7 @@ class GlobalExceptionAdviceTests {
     @BeforeEach
     void setUp() {
         mvc = MockMvcBuilders.standaloneSetup(new ProbeController(), new DomainController())
-                .setControllerAdvice(new GlobalExceptionAdvice(), new ApplicationExceptionAdvice(), new DomainAdvice()).build();
+                .setControllerAdvice(new GlobalExceptionAdvice(), new DomainAdvice()).build();
     }
 
     @Test
@@ -49,8 +47,8 @@ class GlobalExceptionAdviceTests {
     }
 
     @Test
-    void mapsResourceNotFoundToHttpStatus() throws Exception {
-        mvc.perform(get("/business"))
+    void mapsMissingRouteToNotFound() throws Exception {
+        mvc.perform(get("/missing"))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.error.code").value("G006"))
                 .andExpect(jsonPath("$.data").doesNotExist());
@@ -94,15 +92,7 @@ class GlobalExceptionAdviceTests {
     }
 
     @Test
-    void hidesExternalServiceCause() throws Exception {
-        mvc.perform(get("/external"))
-                .andExpect(status().isBadGateway())
-                .andExpect(jsonPath("$.error.code").value("G002"))
-                .andExpect(jsonPath("$.error.message").value(ErrorCode.EXTERNAL_SERVER_ERROR.getMessage()));
-    }
-
-    @Test
-    void domainAdviceTakesPrecedenceOverCommonAdvice() throws Exception {
+    void domainAdviceTakesPrecedenceOverGlobalAdvice() throws Exception {
         mvc.perform(get("/domain/missing"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error.code").value("G003"));
@@ -121,10 +111,13 @@ class GlobalExceptionAdviceTests {
                         () -> advice.handleUnexpectedException(unauthenticated)));
     }
 
+    static class DomainException extends RuntimeException {
+    }
+
     @Order(Ordered.HIGHEST_PRECEDENCE)
     @RestControllerAdvice(assignableTypes = DomainController.class)
     static class DomainAdvice {
-        @ExceptionHandler(ResourceNotFoundException.class)
+        @ExceptionHandler(DomainException.class)
         ResponseEntity<Object> missing() {
             return ErrorResponses.from(ErrorCode.BAD_REQUEST);
         }
@@ -134,7 +127,7 @@ class GlobalExceptionAdviceTests {
     static class DomainController {
         @GetMapping("/domain/missing")
         void missing() {
-            throw new ResourceNotFoundException();
+            throw new DomainException();
         }
     }
 
@@ -143,16 +136,6 @@ class GlobalExceptionAdviceTests {
         @GetMapping("/success")
         CommonResponse<String> success() {
             return CommonResponse.success("ok");
-        }
-
-        @GetMapping("/business")
-        void business() {
-            throw new ResourceNotFoundException();
-        }
-
-        @GetMapping("/external")
-        void external() {
-            throw new ExternalServiceException(new IllegalStateException("외부 서비스의 비공개 오류 정보"));
         }
 
         @GetMapping("/unexpected")

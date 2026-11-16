@@ -1,5 +1,6 @@
 package org.shelterconnect.api.platform.web;
 
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 import org.shelterconnect.api.platform.web.dto.ErrorResponses;
@@ -20,17 +21,16 @@ import org.springframework.web.method.annotation.HandlerMethodValidationExceptio
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 @Slf4j
-@Order(Ordered.LOWEST_PRECEDENCE)
 @RestControllerAdvice
 public class GlobalExceptionAdvice extends ResponseEntityExceptionHandler {
 
     @Override
     protected @Nullable ResponseEntity<Object> handleExceptionInternal(
-            Exception exception,
+            @NonNull Exception exception,
             @Nullable Object body,
-            HttpHeaders headers,
+            @NonNull HttpHeaders headers,
             HttpStatusCode status,
-            WebRequest request
+            @NonNull WebRequest request
     ) {
         CommonResponse<Void> response;
         if (status.is5xxServerError()) {
